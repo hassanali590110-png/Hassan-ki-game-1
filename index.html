@@ -1,0 +1,703 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video & Photo Gallery</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #070b16;
+      --surface: rgba(15, 23, 42, 0.88);
+      --surface-strong: rgba(17, 25, 49, 0.98);
+      --border: rgba(255,255,255,0.08);
+      --text: #f2f5fb;
+      --muted: #a0aed0;
+      --accent: #58a6ff;
+      --accent-strong: #8bd5ff;
+      --radius: 26px;
+      --shadow: 0 26px 80px rgba(0,0,0,0.35);
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: radial-gradient(circle at top left, rgba(88,166,255,0.16), transparent 28%),
+                  radial-gradient(circle at bottom right, rgba(132, 72, 255, 0.18), transparent 20%),
+                  linear-gradient(180deg, #05080f 0%, #090e1c 48%, #0f1730 100%);
+      color: var(--text);
+    }
+
+    body {
+      line-height: 1.6;
+    }
+
+    .page-container {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    header {
+      padding: 28px 0 24px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      color: var(--accent-strong);
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 20px auto 14px;
+      font-size: clamp(3rem, 5vw, 4.2rem);
+      letter-spacing: -0.06em;
+      max-width: 860px;
+    }
+
+    p.lead {
+      margin: 0 auto;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 26px;
+      align-items: start;
+      margin-top: 40px;
+    }
+
+    .hero-card,
+    .hero-video {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .hero-card {
+      padding: 32px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .hero-card strong {
+      display: inline-block;
+      color: var(--accent);
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+    }
+
+    .hero-card h2 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2vw, 2.2rem);
+      line-height: 1.1;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .hero-card .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 10px;
+    }
+
+    .stat {
+      padding: 22px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.5rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .hero-video {
+      position: relative;
+    }
+
+    .hero-video video {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #000;
+    }
+
+    .fullscreen-btn {
+      position: absolute;
+      bottom: 18px;
+      right: 18px;
+      padding: 11px 18px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 999px;
+      background: rgba(10, 18, 36, 0.9);
+      color: var(--text);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease;
+      z-index: 2;
+    }
+
+    .fullscreen-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(56, 102, 221, 0.92);
+    }
+
+    .gallery-section {
+      margin-top: 48px;
+    }
+
+    .gallery-section h2 {
+      margin: 0 0 18px;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+    }
+
+    .gallery-grid {
+      display: grid;
+      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .gallery-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .gallery-card-header {
+      padding: 24px 24px 18px;
+    }
+
+    .gallery-card-header h3 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .gallery-card-header p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .photo-grid {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+
+    .photo-item {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      min-height: 140px;
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+      transition: transform 200ms ease;
+    }
+
+    .photo-item:hover img {
+      transform: scale(1.04);
+    }
+
+    .photo-item::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px 12px;
+      background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%);
+      color: #fff;
+      font-size: 0.9rem;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-section {
+      margin: 36px auto 24px;
+      width: min(1000px, calc(100% - 32px));
+    }
+
+    .profile-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: 0 18px 48px rgba(0,0,0,0.18);
+    }
+
+    .profile-card h2 {
+      margin: 0 0 10px;
+      font-size: 1.6rem;
+    }
+
+    .profile-card p {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+
+    .profile-fields {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-bottom: 18px;
+    }
+
+    .profile-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .profile-field label {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .profile-field input {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 1rem;
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .profile-actions .button {
+      min-width: 140px;
+    }
+
+    .profile-message {
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+
+    .profile-greeting {
+      margin-top: 14px;
+      color: var(--accent-strong);
+      font-size: 1rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+
+    .modal.open {
+      display: flex;
+      animation: fadeIn 180ms ease;
+    }
+
+    .modal-content {
+      max-width: 92vw;
+      max-height: 92vh;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #09111f;
+      box-shadow: 0 32px 110px rgba(0,0,0,0.45);
+      position: relative;
+    }
+
+    .modal-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 92vh;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 46px;
+      height: 46px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .footer {
+      margin-top: 36px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-video,
+      .hero-card {
+        border-radius: 22px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stat {
+        padding: 18px;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1220">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+  <meta name="description" content="Modern gallery for your video and photography collection. Browse your uploaded video and photos in one beautiful place.">
+  <meta property="og:title" content="Video & Photo Gallery">
+  <meta property="og:description" content="Browse a polished gallery of your uploaded video and photos.">
+  <meta property="og:image" content="images-1/IMG_20241226_173417.jpg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Video & Photo Gallery">
+  <meta name="twitter:description" content="Browse a polished gallery of your uploaded video and photos.">
+  <meta name="twitter:image" content="images-1/IMG_20241226_173417.jpg">
+</head>
+<body>
+  <div class="page-container">
+    <header>
+      <div class="eyebrow">Your media collection</div>
+      <h1>Modern gallery for your video and photography collection</h1>
+      <p class="lead">Enjoy a polished experience for your uploaded video and all photos grouped into three folders. Click a thumbnail to open it bigger, and keep adding new images to expand the gallery.</p>
+      <div style="display:flex;justify-content:center;margin-top:20px;">
+        <a href="login.html" style="display:inline-flex;padding:12px 20px;border-radius:999px;background:rgba(88,166,255,0.16);color:#ffffff;border:1px solid rgba(255,255,255,0.12);text-decoration:none;font-weight:600;">Play Pong Game</a>
+      </div>
+    </header>
+
+    <div class="hero-grid">
+      <article class="hero-card">
+        <strong>Welcome</strong>
+        <h2>Capture your best moments in one beautiful place.</h2>
+        <p>Browse through the video and images with a clean layout, smooth hover effects, and full-screen playback for your video. The gallery is built to feel modern and easy to explore.</p>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="statsFolders">3</strong>
+            <span>Photo folders</span>
+          </div>
+          <div class="stat">
+            <strong id="statsImages">0</strong>
+            <span>Total images</span>
+          </div>
+          <div class="stat">
+            <strong id="statsVideos">1</strong>
+            <span>Main video</span>
+          </div>
+        </div>
+      </article>
+
+      <section class="hero-video">
+        <div class="video-frame">
+          <video id="heroPlayer" controls preload="metadata" src="cb9825f01d48d8022664d9d728c5054c_mute.mp4"></video>
+          <button class="fullscreen-btn" id="fullscreenBtn" type="button">Full screen</button>
+        </div>
+      </section>
+
+      <section class="hero-video">
+        <div style="position:relative;padding-top:56.25%;border-radius:18px;overflow:hidden;margin-top:18px;">
+          <iframe
+            src="https://www.youtube.com/embed/R7hq3j9-YEk?si=mPUMkzJu-BAx1yFh"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+            style="position:absolute;left:0;top:0;width:100%;height:100%;border:0;"
+          ></iframe>
+        </div>
+      </section>
+    </div>
+
+    <section class="profile-section">
+      <div class="profile-card">
+        <h2>Your Profile</h2>
+        <p>Save your name and email locally in this browser so your gallery feels personal.</p>
+        <form id="profileForm">
+          <div class="profile-fields">
+            <div class="profile-field">
+              <label for="profileName">Name</label>
+              <input id="profileName" type="text" placeholder="Enter your name">
+            </div>
+            <div class="profile-field">
+              <label for="profileEmail">Email</label>
+              <input id="profileEmail" type="email" placeholder="Enter your email">
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button class="button" id="saveProfileBtn" type="button">Save Profile</button>
+            <button class="button" id="clearProfileBtn" type="button">Clear Profile</button>
+            <span class="profile-message" id="profileMessage"></span>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="gallery-section">
+      <h2>Photo galleries</h2>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </section>
+
+    <div class="footer">Want to add more photos? Drop JPG files into <strong>images-1</strong>, <strong>images-2</strong>, or <strong>images-3</strong> and refresh to see them appear.</div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="close-button" id="closeBtn" aria-label="Close">×</button>
+      <img id="modalImage" class="modal-image" src="" alt="Expanded photo">
+    </div>
+  </div>
+
+  <script>
+    const galleries = [
+      {
+        title: 'Gallery 1',
+        folder: 'images-1',
+        description: 'First set of photos from folder one.',
+        images: [
+          'IMG_20241226_173417.jpg',
+          'IMG_20241226_173435.jpg',
+          'IMG_20241229_134503.jpg',
+          'IMG_20250123_095136.jpg',
+          'IMG_20250123_095143.jpg'
+        ]
+      },
+      {
+        title: 'Gallery 2',
+        folder: 'images-2',
+        description: 'Second image set for more variety.',
+        images: [
+          'IMG_20250123_095151.jpg',
+          'IMG_20250123_095759.jpg',
+          'IMG_20250123_095813.jpg',
+          'IMG_20250123_095916.jpg',
+          'IMG_20250123_095921.jpg'
+        ]
+      },
+      {
+        title: 'Gallery 3',
+        folder: 'images-3',
+        description: 'Latest photos stored in the third folder.',
+        images: [
+          'IMG_20250123_095953.jpg'
+        ]
+      }
+    ];
+
+    const heroPlayer = document.getElementById('heroPlayer');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const galleryGrid = document.getElementById('galleryGrid');
+    const modal = document.getElementById('modal');
+    const modalImage = document.getElementById('modalImage');
+    const closeBtn = document.getElementById('closeBtn');
+
+    // Update hero stats dynamically
+    const statsFoldersEl = document.getElementById('statsFolders');
+    const statsImagesEl = document.getElementById('statsImages');
+    const statsVideosEl = document.getElementById('statsVideos');
+    if (statsFoldersEl) statsFoldersEl.textContent = String(galleries.length);
+    if (statsImagesEl) {
+      const totalImages = galleries.reduce((sum, g) => sum + (g.images ? g.images.length : 0), 0);
+      statsImagesEl.textContent = String(totalImages);
+    }
+    if (statsVideosEl) statsVideosEl.textContent = heroPlayer ? '1' : '0';
+
+    fullscreenBtn.addEventListener('click', async () => {
+      if (heroPlayer.requestFullscreen) {
+        await heroPlayer.requestFullscreen();
+      } else if (heroPlayer.webkitRequestFullscreen) {
+        await heroPlayer.webkitRequestFullscreen();
+      } else if (heroPlayer.msRequestFullscreen) {
+        await heroPlayer.msRequestFullscreen();
+      }
+    });
+
+    galleries.forEach(gallery => {
+      const card = document.createElement('article');
+      card.className = 'gallery-card';
+
+      const header = document.createElement('div');
+      header.className = 'gallery-card-header';
+
+      const title = document.createElement('h3');
+      title.textContent = `${gallery.title} (${gallery.images.length})`;
+
+      const description = document.createElement('p');
+      description.textContent = gallery.description;
+
+      header.append(title, description);
+      card.appendChild(header);
+
+      const photoGrid = document.createElement('div');
+      photoGrid.className = 'photo-grid';
+
+      gallery.images.forEach(filename => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'photo-item';
+        item.setAttribute('data-label', filename);
+
+        const img = document.createElement('img');
+        img.src = `${gallery.folder}/${filename}`;
+        img.alt = filename;
+        img.loading = 'lazy';
+
+        item.appendChild(img);
+        item.addEventListener('click', () => {
+          modalImage.src = img.src;
+          modal.classList.add('open');
+        });
+
+        photoGrid.appendChild(item);
+      });
+
+      card.appendChild(photoGrid);
+      galleryGrid.appendChild(card);
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('open');
+      modalImage.src = '';
+    });
+
+    modal.addEventListener('click', event => {
+      if (event.target === modal) {
+        modal.classList.remove('open');
+        modalImage.src = '';
+      }
+    });
+
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileMessage = document.getElementById('profileMessage');
+    const profileGreeting = document.getElementById('profileGreeting');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const clearProfileBtn = document.getElementById('clearProfileBtn');
+
+    function updateGreeting(name, email) {
+      if (!profileGreeting) return;
+      if (name && email) {
+        profileGreeting.textContent = `Hello ${name}, your email is ${email}. Enjoy your gallery!`;
+      } else if (name) {
+        profileGreeting.textContent = `Hello ${name}, please add your email too.`;
+      } else {
+        profileGreeting.textContent = 'Enter your name and email below to personalize the page.';
+      }
+    }
+
+    function loadProfile() {
+      const name = localStorage.getItem('gallery_user_name') || '';
+      const email = localStorage.getItem('gallery_user_email') || '';
+      if (profileName) profileName.value = name;
+      if (profileEmail) profileEmail.value = email;
+      updateGreeting(name, email);
+    }
+
+    function saveProfile() {
+      const name = profileName.value.trim();
+      const email = profileEmail.value.trim();
+      if (!name || !email) {
+        if (profileMessage) profileMessage.textContent = 'Please enter both name and email.';
+        return;
+      }
+      localStorage.setItem('gallery_user_name', name);
+      localStorage.setItem('gallery_user_email', email);
+      if (profileMessage) profileMessage.textContent = 'Profile saved locally.';
+      updateGreeting(name, email);
+    }
+
+    function clearProfile() {
+      localStorage.removeItem('gallery_user_name');
+      localStorage.removeItem('gallery_user_email');
+      if (profileName) profileName.value = '';
+      if (profileEmail) profileEmail.value = '';
+      if (profileMessage) profileMessage.textContent = 'Profile cleared.';
+      updateGreeting('', '');
+    }
+
+    if (saveProfileBtn) saveProfileBtn.addEventListener('click', saveProfile);
+    if (clearProfileBtn) clearProfileBtn.addEventListener('click', clearProfile);
+    loadProfile();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

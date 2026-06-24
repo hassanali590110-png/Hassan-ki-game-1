@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile</title>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; background: #07111f; color: #f4f7ff; display:flex;align-items:center;justify-content:center;height:100vh;margin:0 }
+    .card { background: rgba(255,255,255,0.03); padding:28px;border-radius:12px;max-width:720px;width:92%; }
+    a { color:#58a6ff; text-decoration:none; display:inline-block; margin-top:14px }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Profile</h1>
+    <p id="profileInfo">Loading saved profile...</p>
+    <p id="adminInfo" style="font-weight:700;color:#58a6ff;margin-top:8px;"></p>
+    <a href="pong.html">Back to Game</a>
+  </div>
+  <script>
+    const info = document.getElementById('profileInfo');
+    const adminInfo = document.getElementById('adminInfo');
+    const name = localStorage.getItem('gallery_user_name') || '';
+    const email = localStorage.getItem('gallery_user_email') || '';
+    const isAdmin = !!localStorage.getItem('gallery_user_is_admin');
+    const adminUsername = localStorage.getItem('gallery_user_admin_username') || '';
+    if (name || email) {
+      info.textContent = `Name: ${name || '-'} \nEmail: ${email || '-'}`;
+      adminInfo.textContent = isAdmin ? `User role: ADMIN • ${adminUsername ? `Admin username: ${adminUsername}` : ''}` : '';
+    } else {
+      info.textContent = 'No saved profile found. Go back to the game and save your profile.';
+      adminInfo.textContent = '';
+    }
+  </script>
+</body>
+</html>

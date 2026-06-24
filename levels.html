@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#58a6ff">
+  <meta name="description" content="Select your game level for Virat Kohli Pong">
+  <title>Select Level - virat kohli game</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --surface: rgba(15, 23, 42, 0.96);
+      --text: #f4f7ff;
+      --accent: #58a6ff;
+      --accent-light: #87ceeb;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.08);
+      --success: #4ade80;
+      --danger: #ff6b6b;
+      font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 50%, rgba(88,166,255,0.25), transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(108, 72, 255, 0.2), transparent 50%),
+                  linear-gradient(135deg, #03060f 0%, #0f1729 50%, #1a1f3a 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: min(560px, 100%);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 75, 0.95));
+      border: 1px solid rgba(88,166,255,0.2);
+      border-radius: 28px;
+      box-shadow: 0 0 60px rgba(88,166,255,0.15),
+                  0 28px 88px rgba(0,0,0,0.45),
+                  inset 0 1px 0 rgba(255,255,255,0.1);
+      overflow: hidden;
+      padding: 32px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: 2rem;
+      background: linear-gradient(135deg, #87ceeb, #58a6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .description {
+      margin: 0 0 30px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .level-grid {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .level-card {
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: transform 200ms ease, border-color 200ms ease, background 200ms ease;
+    }
+
+    .level-card.selected {
+      border-color: rgba(88,166,255,0.8);
+      background: rgba(88,166,255,0.12);
+      transform: translateY(-2px);
+    }
+
+    .level-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+    }
+
+    .level-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border: 1.5px solid rgba(88,166,255,0.2);
+      background: linear-gradient(135deg, rgba(88,166,255,0.08), rgba(108, 72, 255, 0.05));
+      color: var(--text);
+      border-radius: 16px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all 300ms ease;
+      user-select: none;
+      font-weight: 600;
+    }
+
+    .button:hover {
+      background: linear-gradient(135deg, rgba(88,166,255,0.2), rgba(108, 72, 255, 0.12));
+      border-color: rgba(88,166,255,0.5);
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    .back-link {
+      margin-top: 22px;
+      text-align: center;
+    }
+
+    .back-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Select Your Level</h1>
+    <p class="description" id="profileStatus">Choose a level for your next pong challenge.</p>
+
+    <div class="level-grid">
+      <div class="level-card" data-level="Easy">
+        <h2>Easy</h2>
+        <p>Slow AI, forgiving paddle movement. Great for beginners.</p>
+      </div>
+      <div class="level-card" data-level="Normal">
+        <h2>Normal</h2>
+        <p>Balanced speed and challenge for a solid match.</p>
+      </div>
+      <div class="level-card" data-level="Hard">
+        <h2>Hard</h2>
+        <p>Faster AI and tighter gameplay for skilled players.</p>
+      </div>
+      <div class="level-card" data-level="Expert">
+        <h2>Expert</h2>
+        <p>Fast paddle action and lightning AI reaction.</p>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="button" id="startGameBtn">Start Game</button>
+      <button class="button" id="backBtn">Back to Login</button>
+    </div>
+
+    <p class="note">Use this page to set your difficulty before entering the game.</p>
+    <div class="back-link"><a href="index.html">Back to Gallery</a></div>
+  </div>
+
+  <script>
+    const profileStatus = document.getElementById('profileStatus');
+    const startGameBtn = document.getElementById('startGameBtn');
+    const backBtn = document.getElementById('backBtn');
+    const levelCards = Array.from(document.querySelectorAll('.level-card'));
+    let selectedLevel = localStorage.getItem('gallery_user_level') || 'Normal';
+
+    function loadProfileStatus() {
+      const name = localStorage.getItem('gallery_user_name') || '';
+      if (!name) {
+        profileStatus.textContent = 'No profile found. Go back to login and save your profile first.';
+        profileStatus.style.color = '#ff6b6b';
+        startGameBtn.disabled = true;
+        startGameBtn.style.opacity = '0.6';
+      } else {
+        profileStatus.textContent = `Hello ${name}! Pick a level and continue to the game.`;
+        profileStatus.style.color = 'var(--muted)';
+        startGameBtn.disabled = false;
+        startGameBtn.style.opacity = '1';
+      }
+    }
+
+    function updateSelection() {
+      levelCards.forEach(card => {
+        card.classList.toggle('selected', card.dataset.level === selectedLevel);
+      });
+    }
+
+    levelCards.forEach(card => {
+      card.addEventListener('click', () => {
+        selectedLevel = card.dataset.level;
+        updateSelection();
+      });
+    });
+
+    startGameBtn.addEventListener('click', () => {
+      if (!selectedLevel) return;
+      localStorage.setItem('gallery_user_level', selectedLevel);
+      window.location.href = 'game.html';
+    });
+
+    backBtn.addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+
+    loadProfileStatus();
+    updateSelection();
+  </script>
+</body>
+</html>

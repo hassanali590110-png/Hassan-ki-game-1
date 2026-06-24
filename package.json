@@ -1,0 +1,12 @@
+{
+  "name": "gallery-tools",
+  "version": "1.0.0",
+  "description": "Utility scripts for optimizing gallery images",
+  "scripts": {
+    "optimize": "node scripts/optimize-images.js",
+    "clean": "node -e \"const fs=require('fs'); ['webp','thumbs'].forEach(d=>{ if(fs.existsSync(d)) fs.rmSync(d,{recursive:true,force:true}) })\""
+  },
+  "dependencies": {
+    "sharp": "^0.32.0"
+  }
+}

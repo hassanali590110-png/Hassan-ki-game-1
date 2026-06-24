@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#58a6ff">
+  <meta name="description" content="Play Virat Kohli Pong Game - Challenge the computer in this exciting interactive game!">
+  <title>virat kohli game</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg"></head>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #8e8e8f;
+      --surface: rgba(66, 66, 66, 0);
+      --text: hsl(219, 100%, 50%);
+      --accent: #3e6fa7;
+      --accent-light: #000000;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,0.08);
+      --success: #4ade80;
+      --danger: #ff6b6b;
+      font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 50%, rgba(88,166,255,0.25), transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(108, 72, 255, 0.2), transparent 50%),
+                  linear-gradient(135deg, #03060f 0%, #0f1729 50%, #1a1f3a 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      animation: gradientShift 15s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .container {
+      width: min(980px, 100%);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 75, 0.95));
+      border: 1px solid rgba(88,166,255,0.2);
+      border-radius: 28px;
+      box-shadow: 0 0 60px rgba(88,166,255,0.15),
+                  0 28px 88px rgba(0,0,0,0.45),
+                  inset 0 1px 0 rgba(255,255,255,0.1);
+      overflow: hidden;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      animation: fadeInScale 0.6s ease-out;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .top-bar h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 2.2vw, 2.6rem);
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .top-bar a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.95rem;
+      border: 1px solid rgba(88,166,255,0.3);
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(88,166,255,0.12), rgba(108, 72, 255, 0.08));
+      transition: all 300ms ease;
+      font-weight: 500;
+    }
+
+    .top-bar a:hover {
+      background: linear-gradient(135deg, rgba(88,166,255,0.25), rgba(108, 72, 255, 0.15));
+      border-color: rgba(88,166,255,0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(88,166,255,0.2);
+    }
+    .top-bar a.disabled {
+      opacity: 0.48;
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .board {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #1a2942, #2a3d5c);
+      border: 2px solid rgba(88,166,255,0.3);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(88,166,255,0.1),
+                  inset 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: linear-gradient(135deg, #0d1b2a 0%, #1a2a42 100%);
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border: 1.5px solid rgba(88,166,255,0.2);
+      background: linear-gradient(135deg, rgba(88,166,255,0.08), rgba(108, 72, 255, 0.05));
+      color: var(--text);
+      border-radius: 16px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(88,166,255,0.1);
+      transition: left 300ms ease;
+    }
+
+    .button:hover {
+      background: linear-gradient(135deg, rgba(88,166,255,0.2), rgba(108, 72, 255, 0.12));
+      border-color: rgba(88,166,255,0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(88,166,255,0.25);
+    }
+
+    .button:hover::before {
+      left: 100%;
+    }
+
+    .stats {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      margin-top: 24px;
+    }
+
+    .stat-card {
+      padding: 24px 18px;
+      background: linear-gradient(135deg, rgba(88,166,255,0.05), rgba(108, 72, 255, 0.03));
+      border: 1.5px solid rgba(88,166,255,0.15);
+      border-radius: 20px;
+      text-align: center;
+      transition: all 300ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(88,166,255,0.5), transparent);
+    }
+
+    .stat-card:hover {
+      background: linear-gradient(135deg, rgba(88,166,255,0.1), rgba(108, 72, 255, 0.08));
+      border-color: rgba(88,166,255,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(88,166,255,0.15);
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 2.4rem;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    .stat-card span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-card {
+      margin: 20px 0 28px;
+      padding: 24px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(88,166,255,0.05), rgba(108, 72, 255, 0.03));
+      border: 1.5px solid rgba(88,166,255,0.15);
+      display: grid;
+      gap: 16px;
+      box-shadow: 0 0 30px rgba(88,166,255,0.08),
+                  inset 0 1px 0 rgba(255,255,255,0.08);
+      transition: all 300ms ease;
+    }
+
+    .profile-card:hover {
+      border-color: rgba(88,166,255,0.25);
+      box-shadow: 0 0 40px rgba(88,166,255,0.12),
+                  inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    .profile-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .profile-row input {
+      width: 100%;
+      border: 1.5px solid rgba(88,166,255,0.15);
+      border-radius: 14px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 300ms ease;
+      font-weight: 500;
+    }
+
+    .profile-row input::placeholder {
+      color: rgba(148, 163, 184, 0.6);
+    }
+
+    .profile-row input:focus {
+      outline: none;
+      border-color: rgba(88,166,255,0.5);
+      background: rgba(88,166,255,0.08);
+      box-shadow: 0 0 20px rgba(88,166,255,0.15);
+    }
+
+    .profile-row button {
+      min-width: 120px;
+    }
+
+    .profile-row select {
+      width: 100%;
+      border: 1.5px solid rgba(88,166,255,0.15);
+      border-radius: 14px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 300ms ease;
+      font-weight: 500;
+    }
+
+    .profile-row select:focus {
+      outline: none;
+      border-color: rgba(88,166,255,0.5);
+      background: rgba(88,166,255,0.08);
+      box-shadow: 0 0 20px rgba(88,166,255,0.15);
+    }
+
+    .settings {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+
+    .admin-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(88,166,255,0.12);
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .profile-info {
+      color: var(--accent-strong);
+      font-size: 0.95rem;
+    }
+
+    .help {
+      margin-top: 24px;
+      padding: 18px 20px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      background: linear-gradient(135deg, rgba(88,166,255,0.05), rgba(108, 72, 255, 0.03));
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    .help strong {
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      .top-bar { text-align: center; }
+      .top-bar h1 { width: 100%; }
+      .controls { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .profile-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <h1>virat kohli game</h1>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a href="profile.html" id="nextBtn">Next</a>
+        <a href="index.html">Back to Gallery</a>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div style="display:grid;gap:10px;">
+        <strong style="font-size:1rem;">Player Profile</strong>
+        <span class="profile-info" id="pongProfileGreeting">Welcome! Enter your name, email, and password to personalize the game.</span>
+      </div>
+      <div class="profile-row">
+        <input id="pongProfileName" type="text" placeholder="Name">
+      </div>
+      <div class="profile-row">
+        <input id="pongProfilePlayer1" type="text" placeholder="Player 1 name">
+      </div>
+      <div class="profile-row">
+        <input id="pongProfilePlayer2" type="text" placeholder="Player 2 name">
+      </div>
+      <div class="profile-row">
+        <input id="pongProfileEmail" type="email" placeholder="Email">
+      </div>
+      <div class="profile-row">
+        <input id="pongProfilePassword" type="password" placeholder="Password">
+      </div>
+      <div class="profile-row">
+        <input id="pongProfileTeam" type="text" placeholder="Favorite team">
+      </div>
+      <div class="profile-row">
+        <input id="pongAdminUsername" type="text" placeholder="Admin username">
+      </div>
+      <div class="profile-row">
+        <button class="button" id="pongSaveBtn" type="button">Save Profile</button>
+        <button class="button" id="pongClearBtn" type="button">Clear</button>
+      </div>
+      <div class="profile-row" id="adminRow" style="align-items:center;">
+        <input id="adminCode" type="text" placeholder="Admin code (for admin access)">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="button" id="makeAdminBtn" type="button">Make Admin</button>
+          <button class="button" id="revokeAdminBtn" type="button" style="display:none;background:rgba(255,80,80,0.08);">Revoke Admin</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="board">
+      <canvas id="pongCanvas" width="880" height="520"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="button" id="startBtn">Start Game</div>
+      <div class="button" id="pauseBtn">Pause</div>
+      <div class="button" id="resetBtn">Reset</div>
+      <div class="button" id="modeBtn">Mode: Play vs Computer</div>
+      <div class="button" id="toggleSoundBtn">Sound On</div>
+      <div class="button" id="difficultyBtn">Difficulty: Normal</div>
+      <div class="button" id="fullscreenBtn">Fullscreen</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <strong id="scoreLeft">0</strong>
+        <span id="scoreLeftLabel">Player 1</span>
+      </div>
+      <div class="stat-card">
+        <strong id="scoreRight">0</strong>
+        <span id="scoreRightLabel">Computer</span>
+      </div>
+      <div class="stat-card">
+        <strong id="difficultyLevel">Normal</strong>
+        <span>Difficulty</span>
+      </div>
+      <div class="stat-card">
+        <strong id="soundStatus">On</strong>
+        <span>Sound</span>
+      </div>
+      <div class="stat-card">
+        <strong id="gameState">Stopped</strong>
+        <span>Status</span>
+      </div>
+    </div>
+
+    <div class="help">
+      Set <strong>Player 1</strong> and <strong>Player 2</strong> names in the profile above. Use <strong>W</strong> / <strong>S</strong> to move the left paddle and <strong>Up</strong> / <strong>Down</strong> to move the right paddle in 2-player mode. Press the <strong>Mode</strong> button to switch between play vs computer and 2-player mode. Use <strong>M</strong> to mute/unmute, <strong>D</strong> to cycle difficulty, and <strong>F</strong> to toggle fullscreen.
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('pongCanvas');
+    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const modeBtn = document.getElementById('modeBtn');
+    const scoreLeftEl = document.getElementById('scoreLeft');
+    const scoreRightEl = document.getElementById('scoreRight');
+    const scoreLeftLabel = document.getElementById('scoreLeftLabel');
+    const scoreRightLabel = document.getElementById('scoreRightLabel');
+    const gameStateEl = document.getElementById('gameState');
+    const pongProfileName = document.getElementById('pongProfileName');
+    const pongProfilePlayer1 = document.getElementById('pongProfilePlayer1');
+    const pongProfilePlayer2 = document.getElementById('pongProfilePlayer2');
+    const pongProfileEmail = document.getElementById('pongProfileEmail');
+    const pongProfilePassword = document.getElementById('pongProfilePassword');
+    const pongProfileTeam = document.getElementById('pongProfileTeam');
+    const pongAdminUsername = document.getElementById('pongAdminUsername');
+    const pongSaveBtn = document.getElementById('pongSaveBtn');
+    const pongClearBtn = document.getElementById('pongClearBtn');
+    const pongProfileGreeting = document.getElementById('pongProfileGreeting');
+    const nextBtn = document.getElementById('nextBtn');
+    const toggleSoundBtn = document.getElementById('toggleSoundBtn');
+    const difficultyBtn = document.getElementById('difficultyBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    const adminCodeInput = document.getElementById('adminCode');
+    const makeAdminBtn = document.getElementById('makeAdminBtn');
+    const revokeAdminBtn = document.getElementById('revokeAdminBtn');
+    const paddleWidth = 14;
+    const paddleHeight = 110;
+    const ballRadius = 10;
+    const keys = { ArrowUp: false, ArrowDown: false, w: false, s: false };
+
+    const state = {
+      left: { x: 24, y: canvas.height / 2 - paddleHeight / 2 },
+      right: { x: canvas.width - 24 - paddleWidth, y: canvas.height / 2 - paddleHeight / 2 },
+      ball: { x: canvas.width / 2, y: canvas.height / 2, vx: 240, vy: 180 },
+      ballTrail: [],
+      scoreLeft: 0,
+      scoreRight: 0,
+      running: false,
+      paused: false,
+      animationFrame: null,
+      lastTime: 0,
+      soundOn: true,
+      difficulty: 'Normal',
+      player1Name: '',
+      player2Name: '',
+      mode: 'Computer'
+    };
+
+    function resetGame() {
+      state.left.y = canvas.height / 2 - paddleHeight / 2;
+      state.right.y = canvas.height / 2 - paddleHeight / 2;
+      state.ball.x = canvas.width / 2;
+      state.ball.y = canvas.height / 2;
+      state.ball.vx = Math.random() > 0.5 ? 240 : -240;
+      state.ball.vy = (Math.random() * 120 + 140) * (Math.random() > 0.5 ? 1 : -1);
+      state.scoreLeft = 0;
+      state.scoreRight = 0;
+      state.running = false;
+      state.paused = false;
+      state.lastTime = 0;
+      updateStats();
+      draw();
+    }
+
+    function updateStats() {
+      scoreLeftEl.textContent = state.scoreLeft;
+      scoreRightEl.textContent = state.scoreRight;
+      gameStateEl.textContent = state.running ? (state.paused ? 'Paused' : 'Playing') : 'Stopped';
+      const difficultyLevelEl = document.getElementById('difficultyLevel');
+      const soundStatusEl = document.getElementById('soundStatus');
+      if (difficultyLevelEl) difficultyLevelEl.textContent = state.difficulty;
+      if (soundStatusEl) soundStatusEl.textContent = state.soundOn ? 'On' : 'Off';
+      if (scoreLeftLabel) scoreLeftLabel.textContent = state.player1Name || 'Player 1';
+      if (scoreRightLabel) scoreRightLabel.textContent = state.player2Name || (state.mode === 'Computer' ? 'Computer' : 'Player 2');
+    }
+
+    function updateProfileGreeting(name, email, password, team, adminUsername, player1Name = '', player2Name = '') {
+      if (!pongProfileGreeting) return;
+      const isAdmin = !!localStorage.getItem('gallery_user_is_admin');
+      const adminSuffix = isAdmin ? ' — ADMIN' : '';
+      const adminText = adminUsername ? ` • Admin: ${adminUsername}` : '';
+      const playersText = (player1Name || player2Name)
+        ? ` • Match: ${player1Name || 'Player 1'} vs ${player2Name || (state.mode === 'Computer' ? 'Computer' : 'Player 2')}`
+        : '';
+      if (name && email && password) {
+        pongProfileGreeting.textContent = `Player saved: ${name} (${email})` + (team ? ` • Team: ${team}` : '') + playersText + adminText + adminSuffix;
+      } else if (name && email) {
+        pongProfileGreeting.textContent = `Player: ${name} — add a password to save it.` + (team ? ` • Team: ${team}` : '') + playersText + adminText + adminSuffix;
+      } else if (name) {
+        pongProfileGreeting.textContent = `Player: ${name} — add email and password to save.` + (team ? ` • Team: ${team}` : '') + playersText + adminText + adminSuffix;
+      } else {
+        pongProfileGreeting.textContent = 'Welcome! Enter your name, email, and password to personalize the game.' + (team ? ` • Team: ${team}` : '') + playersText + adminText + adminSuffix;
+      }
+    }
+
+    function loadPongProfile() {
+      const name = localStorage.getItem('gallery_user_name') || '';
+      const email = localStorage.getItem('gallery_user_email') || '';
+      const password = localStorage.getItem('gallery_user_password') || '';
+      const team = localStorage.getItem('gallery_user_team') || '';
+      const player1Name = localStorage.getItem('gallery_player1_name') || '';
+      const player2Name = localStorage.getItem('gallery_player2_name') || '';
+      const adminUsername = localStorage.getItem('gallery_user_admin_username') || '';
+      if (pongProfileName) pongProfileName.value = name;
+      if (pongProfilePlayer1) pongProfilePlayer1.value = player1Name;
+      if (pongProfilePlayer2) pongProfilePlayer2.value = player2Name;
+      if (pongProfileEmail) pongProfileEmail.value = email;
+      if (pongProfilePassword) pongProfilePassword.value = password;
+      if (pongProfileTeam) pongProfileTeam.value = team;
+      if (pongAdminUsername) pongAdminUsername.value = adminUsername;
+      state.player1Name = player1Name;
+      state.player2Name = player2Name;
+      updateProfileGreeting(name, email, password, team, adminUsername, player1Name, player2Name, player1Name, player2Name);
+      updateNextButtonState();
+      // reflect admin UI
+      const isAdmin = !!localStorage.getItem('gallery_user_is_admin');
+      if (isAdmin) {
+        adminCodeInput.style.display = 'none';
+        makeAdminBtn.style.display = 'none';
+        revokeAdminBtn.style.display = '';
+      } else {
+        adminCodeInput.style.display = '';
+        makeAdminBtn.style.display = '';
+        revokeAdminBtn.style.display = 'none';
+      }
+    }
+
+    function savePongProfile() {
+      const name = pongProfileName.value.trim();
+      const player1Name = pongProfilePlayer1.value.trim();
+      const player2Name = pongProfilePlayer2.value.trim();
+      const email = pongProfileEmail.value.trim();
+      const password = pongProfilePassword.value;
+      const team = pongProfileTeam.value.trim();
+      const adminUsername = localStorage.getItem('gallery_user_admin_username') || '';
+      if (!name || !email || !password) {
+        if (pongProfileGreeting) pongProfileGreeting.textContent = 'Please enter name, email, and password.';
+        return;
+      }
+      localStorage.setItem('gallery_user_name', name);
+      localStorage.setItem('gallery_user_email', email);
+      localStorage.setItem('gallery_user_password', password);
+      localStorage.setItem('gallery_user_team', team);
+      localStorage.setItem('gallery_player1_name', player1Name);
+      localStorage.setItem('gallery_player2_name', player2Name);
+      state.player1Name = player1Name;
+      state.player2Name = player2Name;
+      updateProfileGreeting(name, email, password, team, adminUsername, player1Name, player2Name);
+      updateNextButtonState();
+      // if user saved profile and is admin flag set, ensure admin UI reflects that
+      const isAdmin = !!localStorage.getItem('gallery_user_is_admin');
+      if (isAdmin) {
+        adminCodeInput.style.display = 'none';
+        makeAdminBtn.style.display = 'none';
+        revokeAdminBtn.style.display = '';
+      }
+    }
+
+    function clearPongProfile() {
+      localStorage.removeItem('gallery_user_name');
+      localStorage.removeItem('gallery_user_email');
+      localStorage.removeItem('gallery_user_password');
+      localStorage.removeItem('gallery_user_team');
+      localStorage.removeItem('gallery_player1_name');
+      localStorage.removeItem('gallery_player2_name');
+      localStorage.removeItem('gallery_user_admin_username');
+      if (pongProfileName) pongProfileName.value = '';
+      if (pongProfilePlayer1) pongProfilePlayer1.value = '';
+      if (pongProfilePlayer2) pongProfilePlayer2.value = '';
+      if (pongProfileEmail) pongProfileEmail.value = '';
+      if (pongProfilePassword) pongProfilePassword.value = '';
+      if (pongProfileTeam) pongProfileTeam.value = '';
+      if (pongAdminUsername) pongAdminUsername.value = '';
+      state.player1Name = '';
+      state.player2Name = '';
+      updateProfileGreeting('', '', '', '', '', '', '');
+      updateNextButtonState();
+      // clear admin when clearing profile
+      localStorage.removeItem('gallery_user_is_admin');
+      adminCodeInput.style.display = '';
+      makeAdminBtn.style.display = '';
+      revokeAdminBtn.style.display = 'none';
+    }
+
+    function updateNextButtonState() {
+      if (!nextBtn) return;
+      const name = localStorage.getItem('gallery_user_name') || '';
+      const email = localStorage.getItem('gallery_user_email') || '';
+      const password = localStorage.getItem('gallery_user_password') || '';
+      const isAdmin = !!localStorage.getItem('gallery_user_is_admin');
+      if (name && email && password) {
+        nextBtn.classList.remove('disabled');
+        nextBtn.setAttribute('title', 'Go to profile');
+        nextBtn.setAttribute('href', 'profile.html');
+      } else if (isAdmin) {
+        // admin can go next even without completing profile
+        nextBtn.classList.remove('disabled');
+        nextBtn.setAttribute('title', 'Go to profile (admin)');
+        nextBtn.setAttribute('href', 'profile.html');
+      } else {
+        nextBtn.classList.add('disabled');
+        nextBtn.setAttribute('title', 'Save profile to enable');
+        nextBtn.removeAttribute('href');
+      }
+    }
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#0b1321';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([16, 12]);
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#58a6ff';
+      ctx.shadowColor = 'rgba(88,166,255,0.4)';
+      ctx.shadowBlur = 20;
+      ctx.fillRect(state.left.x, state.left.y, paddleWidth, paddleHeight);
+      ctx.fillRect(state.right.x, state.right.y, paddleWidth, paddleHeight);
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = 'rgba(88,166,255,0.6)';
+      state.ballTrail.forEach((trail, index) => {
+        const alpha = Math.max(0.05, 0.25 - index * 0.04);
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(trail.x, trail.y, ballRadius * 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      ctx.beginPath();
+      ctx.arc(state.ball.x, state.ball.y, ballRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function movePaddles(dt) {
+      const speed = 420;
+      const distance = speed * dt;
+      if (keys.w) state.left.y -= distance;
+      if (keys.s) state.left.y += distance;
+      state.left.y = Math.max(0, Math.min(canvas.height - paddleHeight, state.left.y));
+
+      if (state.mode === '2 Players') {
+        if (keys.ArrowUp) state.right.y -= distance;
+        if (keys.ArrowDown) state.right.y += distance;
+        state.right.y = Math.max(0, Math.min(canvas.height - paddleHeight, state.right.y));
+      }
+    }
+
+    function moveBall(dt) {
+      state.ballTrail.unshift({ x: state.ball.x, y: state.ball.y });
+      if (state.ballTrail.length > 14) state.ballTrail.pop();
+
+      state.ball.x += state.ball.vx * dt;
+      state.ball.y += state.ball.vy * dt;
+
+      if (state.ball.y - ballRadius <= 0 || state.ball.y + ballRadius >= canvas.height) {
+        state.ball.vy *= -1;
+        playSound(250, 0.05);
+      }
+
+      if (state.ball.x - ballRadius <= state.left.x + paddleWidth) {
+        if (state.ball.y >= state.left.y && state.ball.y <= state.left.y + paddleHeight) {
+          state.ball.vx *= -1.05;
+          state.ball.vy += (state.ball.y - (state.left.y + paddleHeight / 2)) * 0.18;
+          playSound(400, 0.08);
+        }
+      }
+
+      if (state.ball.x + ballRadius >= state.right.x) {
+        if (state.ball.y >= state.right.y && state.ball.y <= state.right.y + paddleHeight) {
+          state.ball.vx *= -1.05;
+          state.ball.vy += (state.ball.y - (state.right.y + paddleHeight / 2)) * 0.18;
+          playSound(450, 0.08);
+        }
+      }
+
+      if (state.ball.x - ballRadius < 0) {
+        state.scoreRight += 1;
+        playSound(180, 0.1);
+        resetBall();
+      }
+
+      if (state.ball.x + ballRadius > canvas.width) {
+        state.scoreLeft += 1;
+        playSound(180, 0.1);
+        resetBall();
+      }
+    }
+    function resetBall() {
+      state.ball.x = canvas.width / 2;
+      state.ball.y = canvas.height / 2;
+      state.ball.vx = state.ball.vx > 0 ? 240 : -240;
+      state.ball.vy = (Math.random() * 120 + 140) * (Math.random() > 0.5 ? 1 : -1);
+      state.ballTrail = [];
+      updateStats();
+    }
+
+    function playSound(frequency, duration) {
+      if (!state.soundOn || typeof window.AudioContext === 'undefined') return;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        oscillator.connect(gain);
+        gain.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+        gain.gain.value = 0.1;
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + duration);
+        setTimeout(() => audioCtx.close(), duration * 1000 + 50);
+      } catch (error) {
+        // ignore audio failures
+      }
+    }
+
+    function toggleSound() {
+      state.soundOn = !state.soundOn;
+      if (toggleSoundBtn) {
+        toggleSoundBtn.textContent = state.soundOn ? 'Sound On' : 'Sound Off';
+      }
+      updateStats();
+    }
+
+    function updateFullscreenButton() {
+      if (!fullscreenBtn) return;
+      fullscreenBtn.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+      } else {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    }
+
+    function updateModeButton() {
+      if (!modeBtn) return;
+      modeBtn.textContent = state.mode === 'Computer' ? 'Mode: Play vs Computer' : 'Mode: 2 Players';
+      if (scoreRightLabel) scoreRightLabel.textContent = state.mode === 'Computer' ? 'Computer' : 'Player 2';
+    }
+
+    function toggleMode() {
+      state.mode = state.mode === 'Computer' ? '2 Players' : 'Computer';
+      updateModeButton();
+      updateStats();
+    }
+
+    function cycleDifficulty() {
+      const levels = ['Easy', 'Normal', 'Hard'];
+      const currentIndex = levels.indexOf(state.difficulty);
+      state.difficulty = levels[(currentIndex + 1) % levels.length];
+      if (difficultyBtn) {
+        difficultyBtn.textContent = `Difficulty: ${state.difficulty}`;
+      }
+      updateStats();
+    }
+
+    function moveAI(dt) {
+      const center = state.right.y + paddleHeight / 2;
+      const target = state.ball.y;
+      const speedMap = {
+        Easy: 1.2,
+        Normal: 1.6,
+        Hard: 2.0
+      };
+      const factor = speedMap[state.difficulty] || 1.6;
+      const ay = (target - center) * factor;
+      const maxSpeed = 650;
+      state.right.y += Math.max(-maxSpeed, Math.min(maxSpeed, ay)) * dt;
+      state.right.y = Math.max(0, Math.min(canvas.height - paddleHeight, state.right.y));
+    }
+
+    function loop(timestamp) {
+      if (!state.running || state.paused) return;
+      const dt = state.lastTime ? Math.min(0.033, (timestamp - state.lastTime) / 1000) : 0.016;
+      state.lastTime = timestamp;
+      movePaddles(dt);
+      if (state.mode === 'Computer') moveAI(dt);
+      moveBall(dt);
+      drawBoard();
+      updateStats();
+      state.animationFrame = requestAnimationFrame(loop);
+    }
+
+    function draw() {
+      drawBoard();
+    }
+
+    function setAdmin(flag) {
+      if (flag) {
+        localStorage.setItem('gallery_user_is_admin', '1');
+        adminCodeInput.style.display = 'none';
+        makeAdminBtn.style.display = 'none';
+        revokeAdminBtn.style.display = '';
+      } else {
+        localStorage.removeItem('gallery_user_is_admin');
+        adminCodeInput.style.display = '';
+        makeAdminBtn.style.display = '';
+        revokeAdminBtn.style.display = 'none';
+      }
+      updateProfileGreeting(
+        localStorage.getItem('gallery_user_name') || '',
+        localStorage.getItem('gallery_user_email') || '',
+        localStorage.getItem('gallery_user_password') || '',
+        localStorage.getItem('gallery_user_team') || '',
+        localStorage.getItem('gallery_user_admin_username') || ''
+      );
+      updateNextButtonState();
+    }
+
+    makeAdminBtn.addEventListener('click', () => {
+      const adminUsername = (pongAdminUsername && pongAdminUsername.value || '').trim();
+      const code = (adminCodeInput && adminCodeInput.value || '').trim();
+      if (!adminUsername) {
+        alert('Please enter the admin username first.');
+        return;
+      }
+      // simple local admin check — change code as needed
+      if (code === 'admin123') {
+        localStorage.setItem('gallery_user_admin_username', adminUsername);
+        setAdmin(true);
+        window.location.href = 'profile.html';
+      } else {
+        alert('Invalid admin code');
+      }
+    });
+
+    revokeAdminBtn.addEventListener('click', () => {
+      setAdmin(false);
+    });
+
+    document.addEventListener('keydown', event => {
+      const key = event.key.toLowerCase();
+      const mappedKey = key === 'arrowup' || key === 'arrowdown' ? event.key : key;
+      if (mappedKey === 'w' || mappedKey === 's' || mappedKey === 'ArrowUp' || mappedKey === 'ArrowDown') {
+        keys[mappedKey] = true;
+      }
+      if (key === 'm') {
+        toggleSound();
+      }
+      if (key === 'd') {
+        cycleDifficulty();
+      }
+      if (key === 'f') {
+        toggleFullscreen();
+      }
+    });
+
+    document.addEventListener('keyup', event => {
+      const key = event.key.toLowerCase();
+      const mappedKey = key === 'arrowup' || key === 'arrowdown' ? event.key : key;
+      if (mappedKey === 'w' || mappedKey === 's' || mappedKey === 'ArrowUp' || mappedKey === 'ArrowDown') {
+        keys[mappedKey] = false;
+      }
+    });
+
+    if (modeBtn) modeBtn.addEventListener('click', toggleMode);
+    pongSaveBtn.addEventListener('click', savePongProfile);
+    pongClearBtn.addEventListener('click', clearPongProfile);
+    if (toggleSoundBtn) toggleSoundBtn.addEventListener('click', toggleSound);
+    if (difficultyBtn) difficultyBtn.addEventListener('click', cycleDifficulty);
+    if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+    document.addEventListener('fullscreenchange', updateFullscreenButton);
+
+    startBtn.addEventListener('click', () => {
+      if (!state.running) {
+        state.running = true;
+        state.paused = false;
+        state.lastTime = performance.now();
+        gameStateEl.textContent = 'Playing';
+        state.animationFrame = requestAnimationFrame(loop);
+      } else if (state.paused) {
+        state.paused = false;
+        state.lastTime = performance.now();
+        gameStateEl.textContent = 'Playing';
+        state.animationFrame = requestAnimationFrame(loop);
+      }
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (state.running && !state.paused) {
+        state.paused = true;
+        gameStateEl.textContent = 'Paused';
+        cancelAnimationFrame(state.animationFrame);
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      cancelAnimationFrame(state.animationFrame);
+      resetGame();
+    });
+
+    loadPongProfile();
+    updateFullscreenButton();
+    resetGame();
+  </script>
+</body>
+</html>
